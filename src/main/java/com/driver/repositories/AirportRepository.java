@@ -59,6 +59,7 @@ public class AirportRepository {
         if(flightMap.containsKey(flightId) && passengerMap.containsKey(passengerId)){
             if(flightMap.containsKey(flightId)) {
                 Flight flight = flightMap.get(flightId);
+                if(!ticketsBookingMap.containsKey(flight)) return null;
                 int numberOfPassengers = ticketsBookingMap.get(flight).size();
                 if (numberOfPassengers == flight.getMaxCapacity()) return "FAILURE";
                 List<Integer> list;
@@ -83,7 +84,10 @@ public class AirportRepository {
     }
 
     private void revenue(Integer flightId) {
-        int price = ticketPrices.get(flightId);
+        int price = 0;
+        if(flightMap.containsKey(flightId) && ticketPrices.containsKey(flightId)){
+            ticketPrices.get(flightId);
+        }
         flightRevenue.put(flightId,flightRevenue.getOrDefault(price,0)+price);
     }
 
@@ -163,11 +167,13 @@ public class AirportRepository {
     }
     public void flightPrice(Integer flightId){
         int bookings = 0;
-        Flight flight = flightMap.get(flightId);
-        if(ticketsBookingMap.containsKey(flight)){
-            bookings = ticketsBookingMap.get(flight).size();
+        if(flightMap.containsKey(flightId)) {
+            Flight flight = flightMap.get(flightId);
+            if (ticketsBookingMap.containsKey(flight)) {
+                bookings = ticketsBookingMap.get(flight).size();
+            }
+            int price = 3000 + bookings * 50;
+            ticketPrices.put(flightId, price);
         }
-        int price = 3000 + bookings*50;
-        ticketPrices.put(flightId,price);
     }
 }
