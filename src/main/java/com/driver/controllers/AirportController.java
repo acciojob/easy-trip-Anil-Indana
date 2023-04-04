@@ -75,8 +75,8 @@ public class AirportController {
         //return a String "FAILURE"
         //Also if the passenger has already booked a flight then also return "FAILURE".
         //else if you are able to book a ticket then return "SUCCESS"
-
-        return airportService.bookATicket(flightId, passengerId);
+        String ans = airportService.bookATicket(flightId, passengerId);
+        return ans;
     }
 
     @PutMapping("/cancel-a-ticket")

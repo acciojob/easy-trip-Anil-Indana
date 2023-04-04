@@ -49,34 +49,37 @@ public class AirportRepository {
     public double getShortestDurationOfPossibleBetweenTwoCities(City fromCity,City toCity){
         double durationTime = Double.MAX_VALUE;
         for(Flight flight : flightMap.values()){
-            if((flight.getFromCity() == fromCity && flight.getToCity() == toCity) && durationTime < flight.getDuration()){
-                durationTime = flight.getDuration();
+            if((flight.getFromCity() == fromCity && flight.getToCity() == toCity)){
+                durationTime = Math.max(durationTime,flight.getDuration());
             }
         }
         return durationTime==Double.MAX_VALUE?-1:durationTime;
     }
     public String bookATicket(Integer flightId,Integer passengerId){
-        if(flightMap.containsKey(flightId)) {
-            Flight flight = flightMap.get(flightId);
-            int numberOfPassengers = ticketsBookingMap.get(flight).size();
-            if (numberOfPassengers == flight.getMaxCapacity()) return "FAILURE";
-            List<Integer> list;
-            if(ticketsBookingMap.containsKey(flight)){
-                list = ticketsBookingMap.get(flight);
+        if(flightMap.containsKey(flightId) && passengerMap.containsKey(passengerId)){
+            if(flightMap.containsKey(flightId)) {
+                Flight flight = flightMap.get(flightId);
+                int numberOfPassengers = ticketsBookingMap.get(flight).size();
+                if (numberOfPassengers == flight.getMaxCapacity()) return "FAILURE";
+                List<Integer> list;
+                if(ticketsBookingMap.containsKey(flight)){
+                    list = ticketsBookingMap.get(flight);
+                }
+                else list = new ArrayList<>();
+                if(list.contains(passengerId)) return "FAILURE";
+                list.add(passengerId);
+                ticketsBookingMap.put(flight,list);
+                flightPrice(flightId); // flight with its price
+                revenue(flightId); // calculating total revenue
+                List<Flight> flights;
+                if(passengerBookings.containsKey(passengerId)) flights = passengerBookings.get(passengerId);
+                else flights = new ArrayList<>();
+                flights.add(flight);
+                passengerBookings.put(passengerId,flights);
             }
-            else list = new ArrayList<>();
-            if(list.contains(passengerId)) return "FAILURE";
-            list.add(passengerId);
-            ticketsBookingMap.put(flight,list);
-            flightPrice(flightId); // flight with its price
-            revenue(flightId); // calculating total revenue
-            List<Flight> flights;
-            if(passengerBookings.containsKey(passengerId)) flights = passengerBookings.get(passengerId);
-            else flights = new ArrayList<>();
-            flights.add(flight);
-            passengerBookings.put(passengerId,flights);
+            return "SUCCESS";
         }
-        return "SUCCESS";
+        return null;
     }
 
     private void revenue(Integer flightId) {
@@ -89,18 +92,21 @@ public class AirportRepository {
 //        for(List<Integer> list : ticketsBookingMap.values()){
 //            if(!list.contains(passengerId)) return "FAILURE";
 //        }
-        for(Flight flight : ticketsBookingMap.keySet()){
-            if(flight.getFlightId() == flightId){
-                List<Integer> list = ticketsBookingMap.get(flight);
-                for(Integer passenger : list){
-                    if(passenger == passengerId) {
+        Flight f = flightMap.get(flightId);
+        if(flightMap.containsKey(flightId) && ticketsBookingMap.containsKey(f)){
+            for(Flight flight : ticketsBookingMap.keySet()){
+                if(flight.getFlightId() == flightId){
+                    List<Integer> list = ticketsBookingMap.get(flight);
+                    if(!list.contains(passengerId)) return "FAILURE";
+                    else {
                         list.remove(passengerId);
                         return "SUCCESS";
                     }
                 }
             }
+            return "FAILURE";
         }
-        return "FAILURE";
+        return null;
     }
     public int countOfBookingsDoneByPassengerAllCombined(Integer passengerId){
         if(passengerBookings.containsKey(passengerId)) return passengerBookings.get(passengerId).size();
@@ -119,9 +125,11 @@ public class AirportRepository {
     }
     public int getNumberOfPeopleOn(Date date,String airportName){
         List<Integer> list = new ArrayList<>();
-        for(Flight flight : ticketsBookingMap.keySet()){
-            if(flight.getFlightDate() == date){
-                list = ticketsBookingMap.get(flight);
+        if(flightMap.containsKey(airportName)){
+            for(Flight flight : ticketsBookingMap.keySet()){
+                if(flight.getFlightDate() == date){
+                    list = ticketsBookingMap.get(flight);
+                }
             }
         }
         int cnt = 0;
@@ -137,18 +145,25 @@ public class AirportRepository {
         return cnt;
     }
     public int calculateFlightFare(Integer flightId){
-        return  ticketPrices.get(flightId);
+        if(ticketPrices.containsKey(flightId)) return  ticketPrices.get(flightId);
+        return 0;
     }
     public String getAirportNameFromFlightId(Integer flightId){
-        for(Flight flight : flightMap.values()){
-            if(flight.getFlightId() == flightId){
-                return flight.getFromCity().name();
+//        for(Flight flight : flightMap.values()){
+//            if(flight.getFlightId() == flightId){
+//                return flight.getFromCity().name();
+//            }
+//        }
+        for(Integer id : flightMap.keySet()){
+            if(flightId == id){
+                return flightMap.get(id).getFromCity().name();
             }
         }
         return null;
     }
     public int calculateRevenueOfAFlight(Integer flightId){
-        return flightRevenue.get(flightId);
+        if(flightRevenue.containsKey(flightId)) return flightRevenue.get(flightId);
+        return 0;
     }
     public void flightPrice(Integer flightId){
         int bookings = 0;
