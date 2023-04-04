@@ -97,6 +97,7 @@ public class AirportRepository {
             for(Flight flight : ticketsBookingMap.keySet()){
                 if(flight.getFlightId() == flightId){
                     List<Integer> list = ticketsBookingMap.get(flight);
+                    if(list == null) return "FAILURE";
                     if(!list.contains(passengerId)) return "FAILURE";
                     else {
                         list.remove(passengerId);
@@ -104,7 +105,6 @@ public class AirportRepository {
                     }
                 }
             }
-            return "FAILURE";
         }
         return "FAILURE";
     }
