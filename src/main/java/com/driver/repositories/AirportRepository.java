@@ -49,8 +49,8 @@ public class AirportRepository {
     public double getShortestDurationOfPossibleBetweenTwoCities(City fromCity,City toCity){
         double durationTime = Double.MAX_VALUE;
         for(Flight flight : flightMap.values()){
-            if((flight.getFromCity() == fromCity && flight.getToCity() == toCity)){
-                durationTime = Math.max(durationTime,flight.getDuration());
+            if((flight.getFromCity() == fromCity && flight.getToCity().equals(toCity))){
+                durationTime = Math.min(durationTime,flight.getDuration());
             }
         }
         return durationTime==Double.MAX_VALUE?-1:durationTime;
@@ -149,14 +149,10 @@ public class AirportRepository {
         return 0;
     }
     public String getAirportNameFromFlightId(Integer flightId){
-//        for(Flight flight : flightMap.values()){
-//            if(flight.getFlightId() == flightId){
-//                return flight.getFromCity().name();
-//            }
-//        }
-        for(Integer id : flightMap.keySet()){
-            if(flightId == id){
-                return flightMap.get(id).getFromCity().name();
+        if(flightMap.containsKey(flightId)){
+            City city = flightMap.get(flightId).getFromCity();
+            for(Airport airport : airportMap.values()){
+                if(airport.getCity().equals(city)) return airport.getAirportName();
             }
         }
         return null;
