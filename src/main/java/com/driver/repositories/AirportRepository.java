@@ -106,10 +106,10 @@ public class AirportRepository {
             }
             return "FAILURE";
         }
-        return null;
+        return "FAILURE";
     }
     public int countOfBookingsDoneByPassengerAllCombined(Integer passengerId){
-        if(passengerBookings.containsKey(passengerId)) return passengerBookings.get(passengerId).size();
+        if(passengerMap.containsKey(passengerId) && passengerBookings.containsKey(passengerId)) return passengerBookings.get(passengerId).size();
         return 0;
     }
     public String addFlight(Flight flight){
@@ -134,7 +134,7 @@ public class AirportRepository {
         }
         int cnt = 0;
         for(Integer id : list){
-            if(passengerBookings.containsKey(id)){
+            if(passengerMap.containsKey(id) && passengerBookings.containsKey(id)){
                 List<Flight> flights = passengerBookings.get(id);
                     for(Flight flight : flights){
                         if(flight.getFromCity().equals(airportName)) cnt++;
@@ -145,7 +145,7 @@ public class AirportRepository {
         return cnt;
     }
     public int calculateFlightFare(Integer flightId){
-        if(ticketPrices.containsKey(flightId)) return  ticketPrices.get(flightId);
+        if(flightMap.containsKey(flightId) && ticketPrices.containsKey(flightId)) return  ticketPrices.get(flightId);
         return 0;
     }
     public String getAirportNameFromFlightId(Integer flightId){
@@ -158,7 +158,7 @@ public class AirportRepository {
         return null;
     }
     public int calculateRevenueOfAFlight(Integer flightId){
-        if(flightRevenue.containsKey(flightId)) return flightRevenue.get(flightId);
+        if(flightMap.containsKey(flightId) && flightRevenue.containsKey(flightId)) return flightRevenue.get(flightId);
         return 0;
     }
     public void flightPrice(Integer flightId){
